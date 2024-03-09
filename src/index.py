@@ -37,7 +37,10 @@ def index_files_in_directory(directory, memory_threshold):
     global partial_index_counter
     current_memory_usage = get_memory_usage()
     
+    # Create inverted indexes
     master_index = InvertedIndex()
+    title_index = InvertedIndex()
+    headings_index = InvertedIndex()
 
     partial_index = PartialIndex()
     for root, _, files in os.walk(directory):
@@ -45,8 +48,13 @@ def index_files_in_directory(directory, memory_threshold):
             if file_name.endswith(".json"):
                 file_path = os.path.join(root, file_name)
                 text = index_file(file_path)
-                partial_index.index_document(file_name, text)
-                print(f"INDEX DOCUMENT {total_documents}")
+                
+                # Extract title and headings
+                soup = BeautifulSoup(text, 'html.parser')
+                title = soup.title.get_text() if soup.title else ""
+                headings = " ".join([heading.get_text() for heading in soup.find_all(['h1', 'h2', 'h3'])])
+                
+                partial_index.index_document(file_name, text, title, headings)
                 total_documents += 1
 
                 # Check memory usage and offload if necessary
@@ -54,6 +62,7 @@ def index_files_in_directory(directory, memory_threshold):
                 if current_memory_usage > memory_threshold:
                     master_index.merge_partial_index(partial_index)
                     partial_index.offload(f"partial_index_{partial_index_counter}.json")
+                    partial_index.write_mapping_to_file("mapping.json")
                     partial_index = PartialIndex()  # Reset the partial index
                     partial_index_counter += 1
                     current_memory_usage = get_memory_usage()
@@ -63,14 +72,20 @@ def index_files_in_directory(directory, memory_threshold):
     if partial_index.index:
         partial_index.offload(f"partial_index_{partial_index_counter}.json")
         master_index.merge_partial_index(partial_index)
-        print("DONE")
+  
         
+    # Write indexes to separate files
     master_index.write_index_to_file("master_index.txt")
+    
+    # Report total docs 
     with open("total_documents.txt", "w") as f:
         f.write(str(total_documents))
+        
+    print("END")
     
 
 def main():
+    print("START")
     # Directory containing files to index
     directory = "/home/mannison/inf141/Assignment3/inf141assn3/corpus/developer/DEV" # TODO take in as a param
 

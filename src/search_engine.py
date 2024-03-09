@@ -7,22 +7,31 @@ from inverted_index import InvertedIndex
 
 class SearchEngine:
     def __init__(self, master_index_file, total_documents):
-        self.master_index = self.load_master_index(master_index_file)
+        self.master_index = self.load_index(master_index_file)
         self.total_documents = total_documents
+        self.stemmer = PorterStemmer()
+        self.mapping_file = mapping_file
+        self.doc_id_mapping = self.load_mapping(mapping_file)
 
-    def load_master_index(self, filename):
-        master_index = InvertedIndex()
-        master_index.load_index_from_file(filename)
-        return master_index
+    
+    def load_mapping(self, mapping_file):
+        with open(mapping_file, 'r') as f:
+            return json.load(f)
+        
+    def load_index(self, filename):
+        index = InvertedIndex()
+        index.load_index_from_file(filename)
+        return index
     
     def search(self, query):
         start_time = time.time()  # Record start time
-        query_tokens = re.findall(r'\b\w+\b', query.lower())
+        query_tokens = self.tokenize_and_stem(query)
         relevant_docs = None
         
         # Find documents containing each query term
         for token in query_tokens:
-            if token in self.master_index.index:
+            stemmed_token = self.stemmer.stem(token)
+            if stemmed_token in self.master_index.index:                
                 if relevant_docs is None:
                     relevant_docs = set(self.master_index.index[token].keys())
                 else:
@@ -62,13 +71,21 @@ class SearchEngine:
                 tf = self.master_index.index[token][doc_id]
                 # Calculate IDF
                 idf = math.log(self.total_documents / len(self.master_index.index[token]))
-                # Calculate TF-IDF
+                # # Adjust IDF based on term location
+                # if doc_id in self.title_index.index[token]:
+                #     idf *= 2  # Double the IDF if term is in title
+                # elif doc_id in self.headings_index.index[token]:
+                #     idf *= 1.5  # Increase IDF by 50% if term is in headings
+                # Calculate TF-IDF                
                 tfidf_score += tf * idf
         return tfidf_score
     
-    def stem():
+    def tokenize_and_stem(self, text):
         # Tokenize and stem the query terms
         tokens = re.findall(r'\b\w+\b', text.lower())
         stemmed_tokens = [self.stemmer.stem(token) for token in tokens]
         return stemmed_tokens
+    
+        def get_filename_from_doc_id(self, doc_id):
+        return self.doc_id_mapping.get(str(doc_id))
 
