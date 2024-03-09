@@ -80,6 +80,7 @@ def index_files_in_directory(directory, memory_threshold):
     # Offload any remaining documents
     if partial_index.index:
         partial_index.offload(f"partial_index_{partial_index_counter}.json")
+        partial_index.write_mapping_to_file("mapping.json")
         master_index.merge_partial_index(partial_index)
   
         
@@ -96,7 +97,7 @@ def index_files_in_directory(directory, memory_threshold):
 def main():
     print("START")
     # Directory containing files to index
-    directory = "/home/mannison/inf141/Assignment3/inf141assn3/corpus/developer/DEV" # TODO take in as a param
+    directory = "/home/mannison/inf141/Assignment3/inf141assn3/corpus/developer/DEV/test" # TODO take in as a param
 
     # Threshold for memory usage (in bytes)
     memory_threshold = 500000  # Adjust as needed

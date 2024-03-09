@@ -18,7 +18,13 @@ class InvertedIndex:
                 else:
                     self.index[token][doc_id] = freq
                 
-                
+    def write_index_to_json(self, filename):
+        index_data = {}
+        for token, postings in self.index.items():
+            index_data[token] = postings
+        with open(filename, 'w') as f:
+            json.dump(index_data, f)
+            
     def write_index_to_file(self, filename):
         with open(filename, 'w') as f:
             for token, postings in self.index.items():
@@ -26,7 +32,7 @@ class InvertedIndex:
                 for document_id, frequency in postings.items():
                     f.write(f"  Document ID: {document_id}, Frequency: {frequency} \n")
                 f.write("\n")
-                
+    
     def load_index_from_file(self, filename):
         with open(filename, 'r') as f:
             # Read the content of the file
@@ -51,7 +57,7 @@ class InvertedIndex:
                     # Extract document ID and frequency
                     doc_info = line.split(",")
                     doc_id = int(doc_info[0].split(":")[1].strip())
-                    frequency = int(round(float(doc_info[1].split(":")[1].strip())))
+                    frequency = int(doc_info[1].split(":")[1].strip())
 
                     # Add the posting to the postings dictionary
                     postings[doc_id] = frequency
@@ -64,5 +70,3 @@ class InvertedIndex:
 
         # Print loaded index
         print("Index loaded successfully.")
-                
-        
