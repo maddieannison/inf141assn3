@@ -11,21 +11,16 @@ class InvertedIndex:
         self.partial_indexes = []
                         
     def merge_partial_index(self, partial_index):
+        # Merge the partial index with the current master index
         for token, postings in partial_index.index.items():
             for doc_id, freq in postings.items():
                 if doc_id in self.index[token]:
                     self.index[token][doc_id] += freq
                 else:
                     self.index[token][doc_id] = freq
-                
-    def write_index_to_json(self, filename):
-        index_data = {}
-        for token, postings in self.index.items():
-            index_data[token] = postings
-        with open(filename, 'w') as f:
-            json.dump(index_data, f)
             
     def write_index_to_file(self, filename):
+        # Write the index to a file and format
         with open(filename, 'w') as f:
             for token, postings in self.index.items():
                 f.write(f"Token: {token}\n")
@@ -38,11 +33,9 @@ class InvertedIndex:
             # Read the content of the file
             lines = f.readlines()
 
-            # Initialize variables to store token and postings
             current_token = None
             postings = {}
 
-            # Parse each line in the file
             for line in lines:
                 line = line.strip()
 

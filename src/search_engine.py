@@ -12,26 +12,15 @@ class SearchEngine:
         self.total_documents = total_documents
         self.stemmer = PorterStemmer()
         self.mapping_file = mapping_file
-        self.doc_id_mapping = self.load(mapping_file)
-
-    
-    def load(self, file):
-        try:
-            with open(file, 'r') as f:
-                self.doc_id_mapping = json.load(f)
-        except FileNotFoundError:
-            print(f"Mapping file '{file}' not found.")
-            self.doc_id_mapping = {}
-        except json.JSONDecodeError:
-            print(f"Error decoding JSON from mapping file '{file}'.")
-            self.doc_id_mapping = {}
         
     def load_index(self, filename):
+        # Function to load the index in from memory
         index = InvertedIndex()
         index.load_index_from_file(filename)
         return index
     
     def search(self, query):
+        # Search function
         start_time = time.time()  # Record start time
         query_tokens = self.tokenize_and_stem(query)
         relevant_docs = []  # Initialize list for relevant documents with URLs
@@ -60,6 +49,7 @@ class SearchEngine:
         return urls, elapsed_time
 
     def calculate_term_frequency(self, doc_id, query_tokens):
+        # Function to calculate the term frequency
         term_frequency = 0
         for token in query_tokens:
             if token in self.master_index.index and doc_id in self.master_index.index[token]:
@@ -67,6 +57,7 @@ class SearchEngine:
         return term_frequency
     
     def calculate_tfidf(self, doc_id, query_tokens):
+        # Function to calculate the tf-idf
         tfidf_score = 0
         for token in query_tokens:
             if token in self.master_index.index and doc_id in self.master_index.index[token]:
@@ -85,7 +76,7 @@ class SearchEngine:
     
     def get_url_from_doc_id(self, doc_id):
         # Load the JSON file
-        with open('mapping.json', 'r') as file:
+        with open(self.mapping_file, 'r') as file:
             mapping = json.load(file)
         
         # Check if the document ID exists in the mapping

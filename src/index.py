@@ -10,8 +10,8 @@ from functools import partial
 total_documents = 0
 partial_index_counter = 0
 
-# Function to monitor memory usage
 def get_memory_usage():
+    # Function to monitor memory usage
     return sys.getsizeof({})
 
 def extract_text(html_content):
@@ -33,6 +33,7 @@ def extract_text(html_content):
         return ""
 
 def index_file(file_path):
+    # Function to extract text from file
     with open(file_path, 'r') as file:
         json_content = file.read()
         data = json.loads(json_content)
@@ -63,6 +64,7 @@ def index_files_in_directory(directory, memory_threshold):
                 title = soup.title.get_text() if soup.title else ""
                 headings = " ".join([heading.get_text() for heading in soup.find_all(['h1', 'h2', 'h3'])])
                 
+                # Index the document
                 partial_index.index_document(text, title, headings, url)
                 total_documents += 1
 
@@ -109,12 +111,6 @@ def main():
         
         # Wait for all tasks to complete
         concurrent.futures.wait(tasks)
-
-    # # Remove partial index files
-    # for i in range(0, partial_index_counter):
-    #     filename = f"partial_index_{i}.json"
-    #     if os.path.exists(filename):
-    #         os.remove(filename)
 
 if __name__ == '__main__':
     main()

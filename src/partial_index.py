@@ -1,71 +1,53 @@
 import re
 import json
 import os
-
 from collections import defaultdict
 
 class PartialIndex:
     def __init__(self):
-        self.index = defaultdict(dict)
-        self.doc_id_mapping = {}
-        self.current_doc_id = 1
+        # Initialize main index and document ID mapping
+        self.index = defaultdict(dict)  # Main index with default dictionary
+        self.doc_id_mapping = {}  # Mapping of document URLs to document IDs
+        self.current_doc_id = 1  # Counter for assigning document IDs
+    
+    def _tokenize(self, text):
+        # Tokenizes the input text
+        return re.findall(r'\b\w+\b', text.lower())
+
+    def index_document(self, text, title, headings, url, title_weight=2, heading_weight=1.5):
+        # Indexes a document by tokenizing its text, title, and headings,
+        # and updating the index with the respective weights
         
-    def index_document(self, text, title, headings, url):
+        # Assign a unique document ID
         doc_id = self.current_doc_id
         self.doc_id_mapping[url] = doc_id
-        # Tokenize content        
-        tokens = re.findall(r'\b\w+\b', text.lower())
-        for token in tokens:
-            if token in self.index:
-                if doc_id in self.index[token]:
-                    self.index[token][doc_id] += 1
-                else:
-                    self.index[token][doc_id] = 1
-            else:
-                self.index[token] = {doc_id: 1}
-                
-         # Index title and headings
-        title_tokens = re.findall(r'\b\w+\b', title.lower())
-        for token in title_tokens:
-            if token in self.index:
-                if doc_id in self.index[token]:
-                    self.index[token][doc_id] += 2  # Double the weight for titles
-                else:
-                    self.index[token][doc_id] = 2
-            else:
-                self.index[token] = {doc_id: 2}  # Double the weight for titles
         
-        headings_tokens = re.findall(r'\b\w+\b', headings.lower())
-        for token in headings_tokens:
-            if token in self.index:
-                if doc_id in self.index[token]:
-                    self.index[token][doc_id] += 1.5  # Increase the weight for headings
-                else:
-                    self.index[token][doc_id] = 1.5
-            else:
-                self.index[token] = {doc_id: 1.5}  # Increase the weight for headings
-        
+        # Tokenize and index text, title, and headings
+        for content, weight in [(text, 1), (title, title_weight), (headings, heading_weight)]:
+            tokens = self._tokenize(content)
+            for token in tokens:
+                # Update index with token occurrences and respective weights
+                self.index[token][doc_id] = self.index[token].get(doc_id, 0) + weight
+
         self.current_doc_id += 1
-                
+
     def offload(self, filename):
+        # Offloads the index to a JSON file
         with open(filename, 'w') as f:
             json.dump(self.index, f)
-            
+
     def write_mapping_to_file(self, mapping_filename):
+        # Writes the document ID mapping to a JSON file
         if os.path.exists(mapping_filename):
-            # Load existing mapping from file
             with open(mapping_filename, 'r') as f:
                 existing_mapping = json.load(f)
-            
-            # Merge existing mapping with current mapping
             self.doc_id_mapping.update(existing_mapping)
-        
-        # Write updated mapping to file
+
         with open(mapping_filename, 'w') as f:
             json.dump(self.doc_id_mapping, f)
-            
-    
+
     def load(filename):
+        # Loads the index from a JSON file
         partial_index = PartialIndex()
         with open(filename, 'r') as file:
             partial_index.index = json.load(file)
