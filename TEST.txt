@@ -1,0 +1,17 @@
+bren
+apple
+lkdsnvfkvnkdfljnvdf
+test
+content
+computer
+masters
+ACM
+lopes
+
+# The following performed poorly because large number of matches - fixed by adding weight to titles and headers
+a
+the 
+of
+to
+
+bren school # OR instead of AND search - updated search to reflect intersection correctly
