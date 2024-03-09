@@ -24,29 +24,54 @@ class SearchEngine:
         start_time = time.time()  # Record start time
         query_tokens = self.tokenize_and_stem(query)
         relevant_docs = []  # Initialize list for relevant documents with URLs
-        
+            
         # Find documents containing each query term
-        for token in query_tokens:
-            if token in self.master_index.index:                
-                relevant_docs.extend(self.master_index.index[token].keys())      
-
-        tfidf_scores = {}
-        for doc_id in relevant_docs:
-            tfidf_scores[doc_id] = self.calculate_tfidf(doc_id, query_tokens)
-                
-        # Sort documents based on TF-IDF scores
-        sorted_doc_ids = sorted(tfidf_scores.keys(), key=lambda doc_id: tfidf_scores[doc_id], reverse=True)
-        
-        # Populate relevant_docs list with (doc_id, url) tuples
-        relevant_docs = [(doc_id, self.get_url_from_doc_id(doc_id)) for doc_id in sorted_doc_ids]
+        for doc_id in range(1, self.total_documents + 1):
+            contains_all_terms = True
+            for token in query_tokens:
+                if token not in self.master_index.index or doc_id not in self.master_index.index[token]:
+                    contains_all_terms = False
+                    break
+            if contains_all_terms:
+                relevant_docs.append((doc_id, self.get_url_from_doc_id(doc_id)))
         
         # Extract URLs from the list of tuples
         urls = [url for doc_id, url in relevant_docs if isinstance(url, str)]
-            
+                
         end_time = time.time()  # Record end time
         elapsed_time = end_time - start_time  # Calculate elapsed time
 
         return urls, elapsed_time
+
+        # # Search function
+        # start_time = time.time()  # Record start time
+        # query_tokens = self.tokenize_and_stem(query)
+        # relevant_docs_sets = []  # Initialize list for sets of relevant documents
+            
+        # # Find documents containing each query term
+        # for token in query_tokens:
+        #     if token in self.master_index.index:                
+        #         relevant_docs_sets.append(set(self.master_index.index[token].keys()))
+        
+        # # Calculate the intersection of relevant document sets
+        # if relevant_docs_sets:
+        #     intersection = set.intersection(*relevant_docs_sets)
+        # else:
+        #     intersection = set()
+        
+        # # Filter documents to include only those containing all query terms
+        # relevant_docs = []
+        # for doc_id in intersection:
+        #     if all(doc_id in docs_set for docs_set in relevant_docs_sets):
+        #         relevant_docs.append((doc_id, self.get_url_from_doc_id(doc_id)))
+        
+        # # Extract URLs from the list of tuples
+        # urls = [url for doc_id, url in relevant_docs if isinstance(url, str)]
+                
+        # end_time = time.time()  # Record end time
+        # elapsed_time = end_time - start_time  # Calculate elapsed time
+
+        # return urls, elapsed_time
 
     def calculate_term_frequency(self, doc_id, query_tokens):
         # Function to calculate the term frequency
