@@ -43,36 +43,6 @@ class SearchEngine:
 
         return urls, elapsed_time
 
-        # # Search function
-        # start_time = time.time()  # Record start time
-        # query_tokens = self.tokenize_and_stem(query)
-        # relevant_docs_sets = []  # Initialize list for sets of relevant documents
-            
-        # # Find documents containing each query term
-        # for token in query_tokens:
-        #     if token in self.master_index.index:                
-        #         relevant_docs_sets.append(set(self.master_index.index[token].keys()))
-        
-        # # Calculate the intersection of relevant document sets
-        # if relevant_docs_sets:
-        #     intersection = set.intersection(*relevant_docs_sets)
-        # else:
-        #     intersection = set()
-        
-        # # Filter documents to include only those containing all query terms
-        # relevant_docs = []
-        # for doc_id in intersection:
-        #     if all(doc_id in docs_set for docs_set in relevant_docs_sets):
-        #         relevant_docs.append((doc_id, self.get_url_from_doc_id(doc_id)))
-        
-        # # Extract URLs from the list of tuples
-        # urls = [url for doc_id, url in relevant_docs if isinstance(url, str)]
-                
-        # end_time = time.time()  # Record end time
-        # elapsed_time = end_time - start_time  # Calculate elapsed time
-
-        # return urls, elapsed_time
-
     def calculate_term_frequency(self, doc_id, query_tokens):
         # Function to calculate the term frequency
         term_frequency = 0
