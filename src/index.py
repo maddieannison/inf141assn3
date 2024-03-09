@@ -17,20 +17,29 @@ def get_memory_usage():
 def extract_text(html_content):
     try:
         soup = BeautifulSoup(html_content, 'html.parser')
+        # Check if the soup object is not None and contains HTML tags
+        if soup and soup.find():
+            # Remove script and style tags
+            for script in soup(["script", "style"]):
+                script.extract()
+            # Get text
+            return soup.get_text(separator=' ')
+        else:
+            # If the soup object is None or does not contain HTML tags, return an empty string
+            return ""
     except Exception as e:
-        print("Exception occurred:", e)
-    # Remove script and style tags
-    for script in soup(["script", "style"]):
-        script.extract()
-    # Get text
-    return soup.get_text(separator=' ')
+        # If an exception occurs during parsing, print the error message and return an empty string
+        print("Exception occurred during HTML parsing:", e)
+        return ""
 
 def index_file(file_path):
     with open(file_path, 'r') as file:
         json_content = file.read()
-        text = json.loads(json_content)["content"]
+        data = json.loads(json_content)
+        url = data["url"]
+        text = data["content"]
         text = extract_text(text)  # Extract text from HTML
-    return text
+    return text, url
 
 def index_files_in_directory(directory, memory_threshold):
     global total_documents
@@ -47,14 +56,14 @@ def index_files_in_directory(directory, memory_threshold):
         for file_name in files:
             if file_name.endswith(".json"):
                 file_path = os.path.join(root, file_name)
-                text = index_file(file_path)
+                text, url = index_file(file_path)
                 
                 # Extract title and headings
                 soup = BeautifulSoup(text, 'html.parser')
                 title = soup.title.get_text() if soup.title else ""
                 headings = " ".join([heading.get_text() for heading in soup.find_all(['h1', 'h2', 'h3'])])
                 
-                partial_index.index_document(file_name, text, title, headings)
+                partial_index.index_document(text, title, headings, url)
                 total_documents += 1
 
                 # Check memory usage and offload if necessary

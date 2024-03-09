@@ -47,6 +47,11 @@ class SearchEngine:
                 
         # Sort documents based on TF-IDF scores
         sorted_doc_ids = sorted(tfidf_scores.keys(), key=lambda doc_id: tfidf_scores[doc_id], reverse=True)
+        
+        # Print filenames associated with relevant document IDs
+        for doc_id in sorted_doc_ids:
+            filename = self.get_filename_from_doc_id(doc_id)
+            print(f"Document ID: {doc_id}, Filename: {filename}")
 
         # # Convert relevant_docs to a list and sort them by term frequency
         # sorted_doc_ids = sorted(relevant_docs, key=lambda doc_id: self.calculate_term_frequency(doc_id, query_tokens), reverse=True)
@@ -86,6 +91,6 @@ class SearchEngine:
         stemmed_tokens = [self.stemmer.stem(token) for token in tokens]
         return stemmed_tokens
     
-        def get_filename_from_doc_id(self, doc_id):
+    def get_filename_from_doc_id(self, doc_id):
         return self.doc_id_mapping.get(str(doc_id))
 

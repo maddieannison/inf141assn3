@@ -9,9 +9,9 @@ class PartialIndex:
         self.doc_id_mapping = {}
         self.current_doc_id = 1
         
-    def index_document(self, filename, text, title, headings):
+    def index_document(self, text, title, headings, url):
         doc_id = self.current_doc_id
-        self.doc_id_mapping[filename] = doc_id
+        self.doc_id_mapping[url] = doc_id
         # Tokenize content        
         tokens = re.findall(r'\b\w+\b', text.lower())
         for token in tokens:
