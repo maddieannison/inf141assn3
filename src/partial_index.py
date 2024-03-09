@@ -15,10 +15,7 @@ class PartialIndex:
         return re.findall(r'\b\w+\b', text.lower())
 
     def index_document(self, text, title, headings, url, title_weight=2, heading_weight=1.5):
-        # Indexes a document by tokenizing its text, title, and headings,
-        # and updating the index with the respective weights
-        
-        # Assign a unique document ID
+        # Assign a unique document ID and map to URL
         doc_id = self.current_doc_id
         self.doc_id_mapping[url] = doc_id
         

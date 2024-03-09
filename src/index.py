@@ -9,6 +9,8 @@ from functools import partial
 
 total_documents = 0
 partial_index_counter = 0
+ngrams_list = []
+indexed_hashes = set()
 
 def get_memory_usage():
     # Function to monitor memory usage
@@ -42,6 +44,38 @@ def index_file(file_path):
         text = extract_text(text)  # Extract text from HTML
     return text, url
 
+# Function to calculate the hash of content
+def calculate_hash(content):
+    hash_object = hashlib.md5(content.encode())  # You can use other hash functions like sha256
+    return hash_object.hexdigest()
+
+# Using ngrams, calculate content similarity and returns true if it is over the threshold of 90%
+def check_content_similarity(text):
+    global ngrams_list
+    this_ngram = compute_ngrams(text, n=3)
+    for ngram in ngrams_list:
+        similarity = compute_ngram_similarity(this_ngram, ngram)
+        if similarity > 0.9:
+            return True
+    ngrams_list.append(this_ngram)
+    return False
+
+# Given a text, compute a list of ngrams of size n
+def compute_ngrams(text, n):
+    words = text.split()
+    ngrams = []
+    for i in range(len(words) - n + 1):
+        ngram = ' '.join(words[i:i+n])
+        ngrams.append(ngram)
+    return ngrams
+
+# Compute similarity given two lists of ngrams
+def compute_ngram_similarity(ngram1, ngram2): # https://pythonhosted.org/ngram/tutorial.html
+    intersection = len(set(ngram1) & set(ngram2))
+    union = len(set(ngram1) | set(ngram2))
+    similarity = intersection / union if union != 0 else 0
+    return similarity
+
 def index_files_in_directory(directory, memory_threshold):
     global total_documents
     global partial_index_counter
@@ -59,6 +93,20 @@ def index_files_in_directory(directory, memory_threshold):
                 file_path = os.path.join(root, file_name)
                 text, url = index_file(file_path)
                 
+                # # Calculate hash of content
+                # content_hash = calculate_hash(text)
+                
+                # # Check if content hash already exists
+                # if content_hash in indexed_hashes:
+                #     # Skip indexing if duplicate content
+                #     continue
+                
+                # if check_content_similarity(text):
+                #     continue
+                
+                # # Add hash to set of indexed hashes
+                # indexed_hashes.add(content_hash)
+                
                 # Extract title and headings
                 soup = BeautifulSoup(text, 'html.parser')
                 title = soup.title.get_text() if soup.title else ""
@@ -66,6 +114,7 @@ def index_files_in_directory(directory, memory_threshold):
                 
                 # Index the document
                 partial_index.index_document(text, title, headings, url)
+                
                 total_documents += 1
 
                 # Check memory usage and offload if necessary
@@ -98,8 +147,14 @@ def index_files_in_directory(directory, memory_threshold):
 
 def main():
     print("START")
+    
+    # Check if directory path is provided as command-line argument
+    if len(sys.argv) < 2:
+        print("Please include the path to the directory (eg /home/mannison/inf141/Assignment3/inf141assn3/corpus/developer/DEV/test)")
+        return
+
     # Directory containing files to index
-    directory = "/home/mannison/inf141/Assignment3/inf141assn3/corpus/developer/DEV/test" # TODO take in as a param
+    directory = sys.argv[1]
 
     # Threshold for memory usage (in bytes)
     memory_threshold = 500000  # Adjust as needed
