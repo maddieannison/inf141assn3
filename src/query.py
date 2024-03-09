@@ -3,7 +3,11 @@ import sys
 from search_engine import SearchEngine
 
 def main():
-    search_engine = SearchEngine("master_index.txt")
+    # Read total document count from file
+    with open("total_documents.txt", "r") as f:
+        total_documents = int(f.read())
+    
+    search_engine = SearchEngine("master_index.txt", total_documents)
     
     while True:
         query = input("Enter your query (or 'exit' to quit): ")

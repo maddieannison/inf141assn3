@@ -1,11 +1,14 @@
 import re
 import time
+import math
 
+from nltk.stem import PorterStemmer
 from inverted_index import InvertedIndex
 
 class SearchEngine:
-    def __init__(self, master_index_file):
+    def __init__(self, master_index_file, total_documents):
         self.master_index = self.load_master_index(master_index_file)
+        self.total_documents = total_documents
 
     def load_master_index(self, filename):
         master_index = InvertedIndex()
@@ -28,9 +31,16 @@ class SearchEngine:
                 # If any term is not found, no need to continue
                 relevant_docs = set()
                 break
+            
+        tfidf_scores = {}
+        for doc_id in relevant_docs:
+                tfidf_scores[doc_id] = self.calculate_tfidf(doc_id, query_tokens)
+                
+        # Sort documents based on TF-IDF scores
+        sorted_doc_ids = sorted(tfidf_scores.keys(), key=lambda doc_id: tfidf_scores[doc_id], reverse=True)
 
-        # Convert relevant_docs to a list and sort them by term frequency
-        sorted_doc_ids = sorted(relevant_docs, key=lambda doc_id: self.calculate_term_frequency(doc_id, query_tokens), reverse=True)
+        # # Convert relevant_docs to a list and sort them by term frequency
+        # sorted_doc_ids = sorted(relevant_docs, key=lambda doc_id: self.calculate_term_frequency(doc_id, query_tokens), reverse=True)
         
         end_time = time.time()  # Record end time
         elapsed_time = end_time - start_time  # Calculate elapsed time
@@ -43,4 +53,22 @@ class SearchEngine:
             if token in self.master_index.index and doc_id in self.master_index.index[token]:
                 term_frequency += self.master_index.index[token][doc_id]
         return term_frequency
+    
+    def calculate_tfidf(self, doc_id, query_tokens):
+        tfidf_score = 0
+        for token in query_tokens:
+            if token in self.master_index.index and doc_id in self.master_index.index[token]:
+                # Calculate TF
+                tf = self.master_index.index[token][doc_id]
+                # Calculate IDF
+                idf = math.log(self.total_documents / len(self.master_index.index[token]))
+                # Calculate TF-IDF
+                tfidf_score += tf * idf
+        return tfidf_score
+    
+    def stem():
+        # Tokenize and stem the query terms
+        tokens = re.findall(r'\b\w+\b', text.lower())
+        stemmed_tokens = [self.stemmer.stem(token) for token in tokens]
+        return stemmed_tokens
 

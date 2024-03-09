@@ -7,7 +7,7 @@ from inverted_index import InvertedIndex
 from bs4 import BeautifulSoup
 from functools import partial
 
-file_counter = 0
+total_documents = 0
 partial_index_counter = 0
 
 # Function to monitor memory usage
@@ -33,7 +33,7 @@ def index_file(file_path):
     return text
 
 def index_files_in_directory(directory, memory_threshold):
-    global file_counter
+    global total_documents
     global partial_index_counter
     current_memory_usage = get_memory_usage()
     
@@ -46,8 +46,8 @@ def index_files_in_directory(directory, memory_threshold):
                 file_path = os.path.join(root, file_name)
                 text = index_file(file_path)
                 partial_index.index_document(file_name, text)
-                print(f"INDEX DOCUMENT {file_counter}")
-                file_counter += 1
+                print(f"INDEX DOCUMENT {total_documents}")
+                total_documents += 1
 
                 # Check memory usage and offload if necessary
                 current_memory_usage += get_memory_usage()
@@ -66,6 +66,8 @@ def index_files_in_directory(directory, memory_threshold):
         print("DONE")
         
     master_index.write_index_to_file("master_index.txt")
+    with open("total_documents.txt", "w") as f:
+        f.write(str(total_documents))
     
 
 def main():
