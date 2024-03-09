@@ -50,7 +50,7 @@ class InvertedIndex:
                     # Extract document ID and frequency
                     doc_info = line.split(",")
                     doc_id = int(doc_info[0].split(":")[1].strip())
-                    frequency = int(doc_info[1].split(":")[1].strip())
+                    frequency = float(doc_info[1].split(":")[1].strip())
 
                     # Add the posting to the postings dictionary
                     postings[doc_id] = frequency
