@@ -24,9 +24,7 @@ class SearchEngine:
     def load_index(self, filename):
         # Function to load the index in from memory
         index = InvertedIndex()
-        print("LOADING")
         index.load_index_from_file(filename)
-        print("LOADED")
         return index
     
     def search(self, query):
