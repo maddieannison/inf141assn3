@@ -48,11 +48,11 @@ def index_file(file_path):
 
 # Function to calculate the hash of content
 def calculate_hash(content):
-    hash_object = hashlib.md5(content.encode())  # You can use other hash functions like sha256
+    hash_object = hashlib.md5(content.encode())
     return hash_object.hexdigest()
 
-# Using ngrams, calculate content similarity and returns true if it is over the threshold of 90%
 def check_content_similarity(text):
+    # Using ngrams, calculate content similarity and returns true if it is over the threshold of 90%
     global ngrams_list
     this_ngram = compute_ngrams(text, n=3)
     for ngram in ngrams_list:
@@ -62,8 +62,8 @@ def check_content_similarity(text):
     ngrams_list.append(this_ngram)
     return False
 
-# Given a text, compute a list of ngrams of size n
 def compute_ngrams(text, n):
+    # Given a text, compute a list of ngrams of size n
     words = text.split()
     ngrams = []
     for i in range(len(words) - n + 1):
@@ -71,8 +71,8 @@ def compute_ngrams(text, n):
         ngrams.append(ngram)
     return ngrams
 
-# Compute similarity given two lists of ngrams
 def compute_ngram_similarity(ngram1, ngram2): # https://pythonhosted.org/ngram/tutorial.html
+    # Compute similarity given two lists of ngrams
     intersection = len(set(ngram1) & set(ngram2))
     union = len(set(ngram1) | set(ngram2))
     similarity = intersection / union if union != 0 else 0

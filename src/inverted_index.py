@@ -29,6 +29,7 @@ class InvertedIndex:
                 f.write("\n")
     
     def load_index_from_file(self, filename):
+        # Load the index from file
         with open(filename, 'r') as f:
             current_token = None
             postings = {}

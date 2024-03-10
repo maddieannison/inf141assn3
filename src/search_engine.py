@@ -44,7 +44,7 @@ class SearchEngine:
         # Sort documents by TF-IDF scores in descending order
         sorted_docs = sorted(tfidf_scores, key=lambda x: x[1], reverse=True)
         
-        # Extract URLs from the sorted list of documents
+        # Extract URLs from the sorted list of documents (top ten)
         urls = [self.get_url_from_doc_id(doc_id) for doc_id, _ in sorted_docs[:10]]
                 
         end_time = time.time()  # Record end time
@@ -99,8 +99,4 @@ class SearchEngine:
                 return url
         
         return "URL not found for the given document ID"
-    
-    # def get_url_from_doc_id(self, doc_id):
-    #     # Retrieve URL from the loaded mapping dictionary
-    #     return self.mapping.get(str(doc_id), "URL not found for the given document ID")
 
