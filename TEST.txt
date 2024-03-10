@@ -1,17 +1,23 @@
-bren
+
+bren # worked but very slow, updated to only return the top ten results
 apple
 lkdsnvfkvnkdfljnvdf
 test
 content
-computer
 masters
 ACM
 lopes
 
-# The following performed poorly because large number of matches - fixed by adding weight to titles and headers
-a
-the 
+# the following performed poorly because large number of matches - fixed by adding weight to titles and headers
+the
+two
 of
-to
+
+computer science # was only stemming in the query and not the indexing, so not corrently matched - fixed by stemming in index
 
 bren school # OR instead of AND search - updated search to reflect intersection correctly
+
+party
+looping
+supercalifragilisticexpialidocious # testing rare words
+four score and seven years ago 
