@@ -10,7 +10,7 @@ class PartialIndex:
         self.doc_id_mapping = {}  # Mapping of document URLs to document IDs
         self.current_doc_id = 1  # Counter for assigning document IDs
     
-    def _tokenize(self, text):
+    def tokenize(self, text):
         # Tokenizes the input text
         return re.findall(r'\b\w+\b', text.lower())
 
@@ -21,7 +21,7 @@ class PartialIndex:
         
         # Tokenize and index text, title, and headings
         for content, weight in [(text, 1), (title, title_weight), (headings, heading_weight)]:
-            tokens = self._tokenize(content)
+            tokens = self.tokenize(content)
             for token in tokens:
                 # Update index with token occurrences and respective weights
                 self.index[token][doc_id] = self.index[token].get(doc_id, 0) + weight

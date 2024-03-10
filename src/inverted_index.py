@@ -30,36 +30,25 @@ class InvertedIndex:
     
     def load_index_from_file(self, filename):
         with open(filename, 'r') as f:
-            # Read the content of the file
-            lines = f.readlines()
-
             current_token = None
             postings = {}
 
-            for line in lines:
+            for line in f:
                 line = line.strip()
 
-                # If the line starts with "Token:", it indicates a new token
                 if line.startswith("Token:"):
-                    # Extract the token
-                    current_token = line.split(":")[1].strip()
-                    postings = {}
-
-                # If the line starts with "Document ID:", it indicates a posting
-                elif line.startswith("Document ID:"):
-                    # Extract document ID and frequency
-                    doc_info = line.split(",")
-                    doc_id = int(doc_info[0].split(":")[1].strip())
-                    frequency = int(doc_info[1].split(":")[1].strip())
-
-                    # Add the posting to the postings dictionary
-                    postings[doc_id] = frequency
-
-                # If the line is empty, it indicates the end of postings for the current token
-                elif not line:
-                    # Add the token and its postings to the index
                     if current_token:
                         self.index[current_token] = postings
+                        postings = {}
+                    current_token = line.split(":")[1].strip()
 
-        # Print loaded index
+                elif line.startswith("Document ID:"):
+                    doc_info = line.split(",")
+                    doc_id = int(doc_info[0].split(":")[1].strip())
+                    frequency = round(float(doc_info[1].split(":")[1].strip()), 2)
+                    postings[doc_id] = frequency
+
+            if current_token:
+                self.index[current_token] = postings
+
         print("Index loaded successfully.")

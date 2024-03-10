@@ -6,9 +6,11 @@ from partial_index import PartialIndex
 from inverted_index import InvertedIndex
 from bs4 import BeautifulSoup
 from functools import partial
+from nltk.stem import PorterStemmer
 
 total_documents = 0
 partial_index_counter = 0
+stemmer = PorterStemmer()
 ngrams_list = []
 indexed_hashes = set()
 
@@ -76,6 +78,12 @@ def compute_ngram_similarity(ngram1, ngram2): # https://pythonhosted.org/ngram/t
     similarity = intersection / union if union != 0 else 0
     return similarity
 
+def tokenize_and_stem(text):
+    # Tokenize and stem the text
+    tokens = text.split()
+    stemmed_tokens = [stemmer.stem(token) for token in tokens]
+    return " ".join(stemmed_tokens)
+
 def index_files_in_directory(directory, memory_threshold):
     global total_documents
     global partial_index_counter
@@ -93,6 +101,8 @@ def index_files_in_directory(directory, memory_threshold):
                 file_path = os.path.join(root, file_name)
                 text, url = index_file(file_path)
                 
+                stemmed_text = tokenize_and_stem(text)
+                
                 # # Calculate hash of content
                 # content_hash = calculate_hash(text)
                 
@@ -108,12 +118,12 @@ def index_files_in_directory(directory, memory_threshold):
                 # indexed_hashes.add(content_hash)
                 
                 # Extract title and headings
-                soup = BeautifulSoup(text, 'html.parser')
+                soup = BeautifulSoup(stemmed_text, 'html.parser')
                 title = soup.title.get_text() if soup.title else ""
                 headings = " ".join([heading.get_text() for heading in soup.find_all(['h1', 'h2', 'h3'])])
                 
                 # Index the document
-                partial_index.index_document(text, title, headings, url)
+                partial_index.index_document(stemmed_text, title, headings, url)
                 
                 total_documents += 1
 
